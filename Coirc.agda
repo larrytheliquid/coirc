@@ -27,11 +27,11 @@ data To : Set where
   pong : To
   message : (to text : String) → To
 
-Irc = SP From To
+IrcBot = SP From To
 
-bot : Irc
+bot : IrcBot
 bot = get f where
-  f : From → Irc
+  f : From → IrcBot
   f (notice from text) = put (print ("Notice from: " ++ from ++ "\n Notice text: " ++ text))
     (♯ bot)
   f (ping server) = put (print ("Ping from: " ++ server))
