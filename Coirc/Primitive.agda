@@ -5,8 +5,14 @@ open import Data.String
 open import IO.Primitive
 
 postulate Handle : Set
-{-# COMPILED_TYPE Handle System.IO.Handle #-}
+{-# COMPILED_TYPE Handle Handle #-}
 
 postulate connectTo : String → IO Handle
-{-# COMPILED connectTo Coirc.FFI.connectTo #-}
+{-# COMPILED connectTo connectTo #-}
+
+postulate hPrint : Handle → String → IO Handle
+{-# COMPILED hPrint hPrint #-}
+
+postulate hGetLine : Handle → IO String
+{-# COMPILED hGetLine hGetLine #-}
   
