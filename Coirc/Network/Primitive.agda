@@ -1,5 +1,5 @@
-module Coirc.Primitive where
-{-# IMPORT Coirc.FFI #-}
+module Coirc.Network.Primitive where
+{-# IMPORT Coirc.Network.FFI #-}
 {-# IMPORT System.IO #-}
 open import Data.String
 open import IO.Primitive
