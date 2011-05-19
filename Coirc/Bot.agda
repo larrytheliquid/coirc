@@ -3,12 +3,15 @@ open import Coirc
 open import Coinduction
 open import Data.String
 
+server = "irc.freenode.org"
+port = 6667
+nick = "foobot-name"
+
 bot : Bot
 bot = get f where
   f : From → Bot
-  f (notice from text) = put (print ("Notice from: " ++ from ++ "\n Notice text: " ++ text))
-    (♯ bot)
-  f (ping server) = put (print ("Ping from: " ++ server))
-    (♯ put pong (♯ bot))
-  f (message from text) = put (print ("Message from: " ++ from ++ "\n Message text: " ++ text))
-    (♯ put (message from "Greetings from your friendly pointed coalgebra!") (♯ bot))
+  f notice = put (print "<notice>") (♯ bot)
+  f numeric = put (print "<numeric-reply>") (♯ bot)
+  f mode = put (print "<mode>") (♯ bot)
+  f ping = put (print "<ping/pong>") (♯ put (pong nick) (♯ bot))
+
