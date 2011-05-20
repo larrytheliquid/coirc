@@ -1,4 +1,4 @@
-module Coirc.FFI where
+module Coirc.Network.FFI where
 import qualified Network as N
 import System.IO
 

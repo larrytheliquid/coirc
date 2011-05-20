@@ -6,14 +6,14 @@ open import IO.Primitive
 open import Foreign.Haskell
 
 postulate Handle : Set
-{-# COMPILED_TYPE Handle Handle #-}
+{-# COMPILED_TYPE Handle System.IO.Handle #-}
 
 postulate hConnect : String → IO Handle
-{-# COMPILED hConnect hConnect #-}
+{-# COMPILED hConnect Coirc.Network.FFI.hConnect #-}
 
 postulate hPrint : Handle → String → IO Unit
-{-# COMPILED hPrint hPrint #-}
+{-# COMPILED hPrint System.IO.hPrint #-}
 
 postulate hGetLine : Handle → IO String
-{-# COMPILED hGetLine hGetLine #-}
+{-# COMPILED hGetLine System.IO.hGetLine #-}
   
