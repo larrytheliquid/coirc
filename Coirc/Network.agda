@@ -53,8 +53,8 @@ private
     ♯ hGetEvents h >>= λ xs → 
     ♯ runActions h (sp xs)
 
-runBot : (server nick real : String) → Bot → IO ⊤
-runBot server nick real bot =
+runBot : Bot → (server nick real : String) → IO ⊤
+runBot bot server nick real =
   ♯ hConnect server >>= λ h → 
   ♯ (♯ hRegister h nick real >>
      ♯ runSP h ⟦ bot ⟧SP)
