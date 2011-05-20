@@ -9,6 +9,7 @@ open import Data.List hiding (_++_)
 open import Data.Sum
 open import Data.Product
 open import Relation.Nullary
+open import Relation.Binary.PropositionalEquality
 open import Coirc
 open import Coirc.Format
 
@@ -98,4 +99,24 @@ parse-Event xs with parse-Notice xs
 ... | nothing with parse-Ping xs
 ... | just x = just x
 ... | nothing = nothing
+
+private
+  test : Event → String → Set
+  test e s = just e ≡ parse-Event (toList (s ++ "\r\n"))
+
+  test-Notice : test notice
+    ":verne.freenode.net NOTICE * :*** Looking up your hostname..."
+  test-Notice = refl
+
+  test-NumericReply : test numeric
+    ":verne.freenode.net 001 foobot-name :Welcome to the freenode Internet Relay Chat Network pisigbot"
+  test-NumericReply = refl
+
+  test-Mode : test mode
+    ":pisigbot MODE pisigbot :+i"
+  test-Mode = refl
+
+  test-Ping : test ping
+   "PING :verne.freenode.net"
+  test-Ping = refl
 

@@ -17,7 +17,10 @@ private
   hConnect s = lift (Prim.hConnect s)
 
   hGetLine : Handle → IO String
-  hGetLine h = lift (Prim.hGetLine h)
+  hGetLine h =
+    ♯ lift (Prim.hGetLine h) >>= λ s →
+    ♯ (♯ putStrLn s >>
+       ♯ return s)
 
   hPrint : Handle → String → IO ⊤
   hPrint h s = ♯ lift (Prim.hPrint h s) >> ♯ return tt

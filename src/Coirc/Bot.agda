@@ -6,8 +6,8 @@ open import IO
 open import Data.String
 
 server = "irc.freenode.org"
-name = "foobot-name"
-real = "Foobot Name"
+name = "pisigbot"
+real = "Pi-Sigma Bot"
 
 bot : Bot
 bot =
