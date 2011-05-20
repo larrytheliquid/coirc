@@ -109,11 +109,11 @@ private
   test-Notice = refl
 
   test-NumericReply : test numeric
-    ":verne.freenode.net 001 foobot-name :Welcome to the freenode Internet Relay Chat Network pisigbot"
+    ":verne.freenode.net 001 foobot-name :Welcome to the freenode Internet Relay Chat Network coalgbot"
   test-NumericReply = refl
 
   test-Mode : test mode
-    ":pisigbot MODE pisigbot :+i"
+    ":coalgbot MODE coalgbot :+i"
   test-Mode = refl
 
   test-Ping : test ping
