@@ -20,7 +20,7 @@ private
   hGetLine h =
     ♯ lift (Prim.hGetLine h) >>= λ s →
     ♯ (♯ putStrLn s >>
-       ♯ return s)
+       ♯ return (s ++ "\n"))
 
   hPrint : Handle → String → IO ⊤
   hPrint h s = ♯ lift (Prim.hPrint h s) >> ♯ return tt

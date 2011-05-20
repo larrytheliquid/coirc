@@ -13,13 +13,13 @@ bot : Bot
 bot =
   put (nick name)
   (♯ put (user name real) 
-  (♯ get f))
-  where
-  f : Event → Bot
-  f notice = put (print "<notice>") (♯ bot)
-  f numeric = put (print "<numeric-reply>") (♯ bot)
-  f mode = put (print "<mode>") (♯ bot)
-  f ping = put (print "<ping/pong>") (♯ put (pong name) (♯ bot))
+  (♯ loop)) where
+  loop = get f where
+    f : Event → Bot
+    f notice = put (print "<notice>") (♯ loop)
+    f numeric = put (print "<numeric-reply>") (♯ loop)
+    f mode = put (print "<mode>") (♯ loop)
+    f ping = put (print "<ping/pong>") (♯ put (pong name) (♯ loop))
 
 main = run (runBot bot server)
 
