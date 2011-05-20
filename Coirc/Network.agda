@@ -40,7 +40,9 @@ private
     ... | just x = ♯ hGetEvents h >>= λ xs → ♯ return (x ∷ ♯ xs)
 
   runActions : Handle → Colist Action → IO ⊤
-  runActions h [] = return tt
+  runActions h [] =
+    ♯ putStrLn "<disconnect>" >>
+    ♯ return tt
   runActions h (print text ∷ xs) =
     ♯ putStrLn text >>
     ♯ runActions h (♭ xs)
