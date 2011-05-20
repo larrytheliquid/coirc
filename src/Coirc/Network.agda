@@ -50,6 +50,9 @@ private
   runActions h (pong name ∷ xs) =
     ♯ hSend h ("PONG " ++ name) >>
     ♯ runActions h (♭ xs)
+  runActions h (quit text ∷ xs) =
+    ♯ hSend h ("QUIT " ++ text) >>
+    ♯ runActions h (♭ xs)
 
   runSP : Handle → (Colist Event → Colist Action) → IO ⊤
   runSP h sp =
