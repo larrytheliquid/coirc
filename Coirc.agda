@@ -13,12 +13,12 @@ data SP (A B : Set) : Set where
 ⟦ get f ⟧SP (a ∷ as) = ⟦ f a ⟧SP (♭ as)
 ⟦ put b x ⟧SP as = b ∷ ♯ ⟦ ♭ x ⟧SP as
 
-data From : Set where
-  notice mode numeric ping : From
+data Event : Set where
+  notice mode numeric ping : Event
 
-data To : Set where
-  print : (text : String) → To
-  pong : (nick : String) → To
+data Action : Set where
+  print : (text : String) → Action
+  pong : (nick : String) → Action
 
-Bot = SP From To
+Bot = SP Event Action
 

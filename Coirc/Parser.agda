@@ -88,8 +88,8 @@ parse-Ping xs with parse Ping xs
 ... | nothing = nothing
 ... | just (x , _) = just x
 
-parse-From : List Char → Maybe From
-parse-From xs with parse-Notice xs
+parse-Event : List Char → Maybe Event
+parse-Event xs with parse-Notice xs
 ... | just x = just x
 ... | nothing with parse-NumericReply xs
 ... | just x = just x

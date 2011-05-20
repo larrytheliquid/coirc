@@ -3,6 +3,7 @@ module Coirc.Network.Primitive where
 {-# IMPORT System.IO #-}
 open import Data.String
 open import IO.Primitive
+open import Foreign.Haskell
 
 postulate Handle : Set
 {-# COMPILED_TYPE Handle Handle #-}
@@ -10,7 +11,7 @@ postulate Handle : Set
 postulate connectTo : String → IO Handle
 {-# COMPILED connectTo connectTo #-}
 
-postulate hPrint : Handle → String → IO Handle
+postulate hPrint : Handle → String → IO Unit
 {-# COMPILED hPrint hPrint #-}
 
 postulate hGetLine : Handle → IO String

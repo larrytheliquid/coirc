@@ -45,7 +45,7 @@ El `*crlf = String
 mutual
   data Format : Set where
     Fail End : Format
-    As : From → Format
+    As : Event → Format
     Base : U → Format
     Skip Or And : Format → Format → Format
     Use : (f : Format) → (⟦ f ⟧ → Format) → Format
@@ -53,7 +53,7 @@ mutual
   ⟦_⟧ : Format → Set
   ⟦ Fail ⟧ = ⊥
   ⟦ End ⟧ = ⊤
-  ⟦ As _ ⟧ = From
+  ⟦ As _ ⟧ = Event
   ⟦ Base u ⟧ = El u
   ⟦ Skip _ f ⟧ = ⟦ f ⟧
   ⟦ Or f₁ f₂ ⟧ = ⟦ f₁ ⟧ ⊎ ⟦ f₂ ⟧
