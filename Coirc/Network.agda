@@ -27,11 +27,6 @@ private
     ♯ putStrLn ("> " ++ s) >>
     ♯ hPrint h (s ++ "\r\n")
 
-  hRegister : Handle → (nick real : String) → IO ⊤
-  hRegister h nick real =
-    ♯ hSend h ("NICK " ++ nick) >>
-    ♯ hSend h ("USER " ++ nick ++ " 0 * :" ++ real)
-
   hGetEvents : Handle → IO (Colist Event)
   hGetEvents h = ♯ hGetLine h >>= (λ x → ♯ f x) where
     f : String → IO (Colist Event)
@@ -46,8 +41,14 @@ private
   runActions h (print text ∷ xs) =
     ♯ putStrLn text >>
     ♯ runActions h (♭ xs)
-  runActions h (pong nick ∷ xs) =
-    ♯ hSend h ("PONG " ++ nick) >>
+  runActions h (nick name ∷ xs) =
+    ♯ hSend h ("NICK " ++ name) >>
+    ♯ runActions h (♭ xs)
+  runActions h (user name real ∷ xs) =
+    ♯ hSend h ("USER " ++ name ++ " 0 * :" ++ real) >>
+    ♯ runActions h (♭ xs)
+  runActions h (pong name ∷ xs) =
+    ♯ hSend h ("PONG " ++ name) >>
     ♯ runActions h (♭ xs)
 
   runSP : Handle → (Colist Event → Colist Action) → IO ⊤
@@ -55,8 +56,7 @@ private
     ♯ hGetEvents h >>= λ xs → 
     ♯ runActions h (sp xs)
 
-runBot : Bot → (server nick real : String) → IO ⊤
-runBot bot server nick real =
+runBot : Bot → String → IO ⊤
+runBot bot server =
   ♯ hConnect server >>= λ h → 
-  ♯ (♯ hRegister h nick real >>
-     ♯ runSP h ⟦ bot ⟧SP)
+  ♯ runSP h ⟦ bot ⟧SP

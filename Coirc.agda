@@ -18,7 +18,9 @@ data Event : Set where
 
 data Action : Set where
   print : (text : String) → Action
-  pong : (nick : String) → Action
+  nick : (name : String) → Action
+  user : (name real : String) → Action
+  pong : (name : String) → Action
 
 Bot = SP Event Action
 
