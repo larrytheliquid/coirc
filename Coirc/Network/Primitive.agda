@@ -8,8 +8,8 @@ open import Foreign.Haskell
 postulate Handle : Set
 {-# COMPILED_TYPE Handle Handle #-}
 
-postulate connectTo : String → IO Handle
-{-# COMPILED connectTo connectTo #-}
+postulate hConnect : String → IO Handle
+{-# COMPILED hConnect hConnect #-}
 
 postulate hPrint : Handle → String → IO Unit
 {-# COMPILED hPrint hPrint #-}

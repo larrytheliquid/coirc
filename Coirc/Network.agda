@@ -13,8 +13,8 @@ import Coirc.Network.Primitive as Prim
 private
   Handle = Prim.Handle
 
-  hConnectTo : String → IO Handle
-  hConnectTo s = lift (Prim.connectTo s)
+  hConnect : String → IO Handle
+  hConnect s = lift (Prim.hConnect s)
 
   hGetLine : Handle → IO String
   hGetLine h = lift (Prim.hGetLine h)
@@ -26,6 +26,11 @@ private
   hSend h s =
     ♯ putStrLn ("> " ++ s) >>
     ♯ hPrint h (s ++ "\r\n")
+
+  hRegister : Handle → (nick real : String) → IO ⊤
+  hRegister h nick real =
+    ♯ hSend h ("NICK " ++ nick) >>
+    ♯ hSend h ("USER " ++ nick ++ " 0 * :" ++ real)
 
   hGetEvents : Handle → IO (Colist Event)
   hGetEvents h = ♯ hGetLine h >>= (λ x → ♯ f x) where
@@ -48,7 +53,8 @@ private
     ♯ hGetEvents h >>= λ xs → 
     ♯ runActions h (sp xs)
 
-runBot : (server : String) → Bot → IO ⊤
-runBot server bot =
-  ♯ hConnectTo server >>= λ h → 
-  ♯ runSP h ⟦ bot ⟧SP
+runBot : (server nick real : String) → Bot → IO ⊤
+runBot server nick real bot =
+  ♯ hConnect server >>= λ h → 
+  ♯ (♯ hRegister h nick real >>
+     ♯ runSP h ⟦ bot ⟧SP)
