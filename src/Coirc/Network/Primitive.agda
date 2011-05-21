@@ -11,8 +11,8 @@ postulate Handle : Set
 postulate hConnect : String → IO Handle
 {-# COMPILED hConnect Coirc.Network.FFI.hConnect #-}
 
-postulate hPrint : Handle → String → IO Unit
-{-# COMPILED hPrint System.IO.hPrint #-}
+postulate hPutStr : Handle → String → IO Unit
+{-# COMPILED hPutStr System.IO.hPutStr #-}
 
 postulate hGetLine : Handle → IO String
 {-# COMPILED hGetLine System.IO.hGetLine #-}

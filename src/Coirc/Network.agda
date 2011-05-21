@@ -4,7 +4,6 @@ open import Coinduction
 open import Data.Unit
 open import Data.String
 open import Data.Maybe
-open import Data.Colist hiding (_++_)
 open import IO
 open import Coirc
 open import Coirc.Parser
@@ -22,47 +21,46 @@ private
     ♯ (♯ putStrLn s >>
        ♯ return (s ++ "\n"))
 
-  hPrint : Handle → String → IO ⊤
-  hPrint h s = ♯ lift (Prim.hPrint h s) >> ♯ return tt
+  hPutStr : Handle → String → IO ⊤
+  hPutStr h s = ♯ lift (Prim.hPutStr h s) >> ♯ return tt
 
   hSend : Handle → String → IO ⊤
   hSend h s =
     ♯ putStrLn ("> " ++ s) >>
-    ♯ hPrint h (s ++ "\r\n")
+    ♯ hPutStr h (s ++ "\r\n")
 
-  hGetEvents : Handle → IO (Colist Event)
-  hGetEvents h = ♯ hGetLine h >>= (λ x → ♯ f x) where
-    f : String → IO (Colist Event)
-    f s with parse-Event (toList s)
-    ... | nothing = return []
-    ... | just x = ♯ hGetEvents h >>= λ xs → ♯ return (x ∷ ♯ xs)
+  getEvent : Handle → IO (Maybe Event)
+  getEvent h = ♯ hGetLine h >>= (λ x → ♯ f x) where
+    f : String → IO (Maybe Event)
+    f = return ∘ parse-Event ∘ toList
 
-  runActions : Handle → Colist Action → IO ⊤
-  runActions h [] =
-    ♯ putStrLn "<disconnect>" >>
-    ♯ return tt
-  runActions h (print text ∷ xs) =
-    ♯ putStrLn text >>
-    ♯ runActions h (♭ xs)
-  runActions h (nick name ∷ xs) =
-    ♯ hSend h ("NICK " ++ name) >>
-    ♯ runActions h (♭ xs)
-  runActions h (user name real ∷ xs) =
-    ♯ hSend h ("USER " ++ name ++ " 0 * :" ++ real) >>
-    ♯ runActions h (♭ xs)
-  runActions h (pong name ∷ xs) =
-    ♯ hSend h ("PONG " ++ name) >>
-    ♯ runActions h (♭ xs)
-  runActions h (quit text ∷ xs) =
-    ♯ hSend h ("QUIT " ++ text) >>
-    ♯ runActions h (♭ xs)
+  runAction : Handle → Action → IO ⊤
+  runAction h (print text) =
+    putStrLn text
+  runAction h (nick name) =
+    hSend h ("NICK " ++ name)
+  runAction h (user name real) =
+    hSend h ("USER " ++ name ++ " 0 * :" ++ real)
+  runAction h (pong name) =
+    hSend h ("PONG " ++ name)
+  runAction h (quit text) =
+    hSend h ("QUIT " ++ text)
 
-  runSP : Handle → (Colist Event → Colist Action) → IO ⊤
-  runSP h sp =
-    ♯ hGetEvents h >>= λ xs → 
-    ♯ runActions h (sp xs)
+  runSP : Handle → Bot → IO ⊤
+  runSP h (get f) =
+    ♯ getEvent h >>= λ e? →
+    ♯ g e?
+    where
+    g : Maybe Event → IO ⊤
+    g nothing =
+      ♯ putStrLn "<disconnect>" >>
+      ♯ return tt
+    g (just e) = runSP h (f e)
+  runSP h (put a sp) =
+    ♯ runAction h a >>
+    ♯ runSP h (♭ sp)
 
 runBot : Bot → String → IO ⊤
 runBot bot server =
   ♯ hConnect server >>= λ h → 
-  ♯ runSP h ⟦ bot ⟧SP
+  ♯ runSP h bot
