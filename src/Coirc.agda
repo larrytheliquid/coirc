@@ -9,7 +9,8 @@ data SP (A B : Set) : Set where
   put : B → ∞ (SP A B) → SP A B
 
 data Event : Set where
-  notice mode numeric ping privmsg : Event
+  notice mode numeric ping : Event
+  privmsg : (source text : String) → Event
 
 data Action : Set where
   print : (text : String) → Action

@@ -83,14 +83,17 @@ str s = chars (toList s)
   chars (x ∷ xs) = char x >>- chars xs
 
 DIGIT = Base (DAR-RANGE (toNat '0') (toNat '9'))
-sp    = Base (DAR 32)
-cr    = Base (DAR 13)
-lf    = Base (DAR 10)
+colon = char ':'
+sp    = char ' '
+cr    = char '\r'
+lf    = char '\n'
 crlf  = cr >>- lf
+
+prefix = colon >> Base `*sp
 
 Notice : Format
 Notice =
-  Base `*sp >> -- prefix
+  prefix >>
   sp >>
   str "NOTICE" >>
   sp >> char '*' >> sp >>
@@ -100,7 +103,7 @@ Notice =
 
 NumericReply : Format
 NumericReply = 
-  Base `*sp >> -- prefix
+  prefix >>
   sp >>
   (DIGIT >>- DIGIT >>- DIGIT) >>
   sp >>
@@ -112,7 +115,7 @@ NumericReply =
 
 Mode : Format
 Mode =
-  Base `*sp >> -- prefix
+  prefix >>
   sp >>
   str "MODE" >>
   sp >>
@@ -132,12 +135,12 @@ Ping =
 
 Privmsg : Format
 Privmsg =
-  Base `*sp >> -- prefix
+  prefix >>= λ source →
   sp >>
   str "PRIVMSG" >>
   sp >>
   Base `*sp >> -- target
   sp >>
-  Base `*crlf >> -- text
+  Base `*crlf >>= λ text →
   crlf >>
-  As privmsg
+  As (privmsg source text)
