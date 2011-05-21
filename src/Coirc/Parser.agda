@@ -89,6 +89,11 @@ parse-Ping xs with parse Ping xs
 ... | nothing = nothing
 ... | just (x , _) = just x
 
+parse-Privmsg : List Char → Maybe ⟦ Privmsg ⟧
+parse-Privmsg xs with parse Privmsg xs
+... | nothing = nothing
+... | just (x , _) = just x
+
 parse-Event : List Char → Maybe Event
 parse-Event xs with parse-Notice xs
 ... | just x = just x
@@ -97,6 +102,8 @@ parse-Event xs with parse-Notice xs
 ... | nothing with parse-Mode xs
 ... | just x = just x
 ... | nothing with parse-Ping xs
+... | just x = just x
+... | nothing with parse-Privmsg xs
 ... | just x = just x
 ... | nothing = nothing
 
@@ -119,4 +126,8 @@ private
   test-Ping : test ping
    "PING :verne.freenode.net"
   test-Ping = refl
+
+  test-Privmsg : test privmsg
+    ":amiller!debian-tor@gateway/tor-sasl/socrates1024 PRIVMSG coalgbot :PING 3073265598"
+  test-Privmsg = refl
 

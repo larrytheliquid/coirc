@@ -129,3 +129,15 @@ Ping =
   Base `*crlf >> -- server
   crlf >>
   As ping
+
+Privmsg : Format
+Privmsg =
+  Base `*sp >> -- prefix
+  sp >>
+  str "PRIVMSG" >>
+  sp >>
+  Base `*sp >> -- target
+  sp >>
+  Base `*crlf >> -- text
+  crlf >>
+  As privmsg

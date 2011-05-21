@@ -20,6 +20,7 @@ bot =
     f numeric = put (print "<numeric-reply>") (♯ loop)
     f mode = put (print "<mode>") (♯ loop)
     f ping = put (print "<ping/pong>") (♯ put (pong name) (♯ loop))
+    f privmsg = put (print "<privmsg>") (♯ loop)
 
 main = run (runBot bot server)
 
