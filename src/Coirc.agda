@@ -16,6 +16,7 @@ data Action : Set where
   nick : (name : String) → Action
   user : (name real : String) → Action
   pong : (name : String) → Action
+  privmsg : (target text : String) → Action
   quit : (text : String) → Action
 
 Bot = SP Event Action

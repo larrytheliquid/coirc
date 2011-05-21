@@ -43,6 +43,8 @@ private
     hSend h ("USER " ++ name ++ " 0 * :" ++ real)
   runAction h (pong name) =
     hSend h ("PONG " ++ name)
+  runAction h (privmsg target text) =
+    hSend h ("PRIVMSG " ++ target ++ " :" ++ text)
   runAction h (quit text) =
     hSend h ("QUIT " ++ text)
 

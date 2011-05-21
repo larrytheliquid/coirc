@@ -69,42 +69,17 @@ parse (Use f₁ f₂) xs with parse f₁ xs
 ... | nothing = nothing
 ... | just (b , zs) = just ((a , b) , zs)
 
-parse-Notice : List Char → Maybe ⟦ Notice ⟧
-parse-Notice xs with parse Notice xs
-... | nothing = nothing
-... | just (result , _) = just result
-
-parse-NumericReply : List Char → Maybe ⟦ NumericReply ⟧
-parse-NumericReply xs with parse NumericReply xs
-... | nothing = nothing
-... | just (x , _) = just x
-
-parse-Mode : List Char → Maybe ⟦ Mode ⟧
-parse-Mode xs with parse Mode xs
-... | nothing = nothing
-... | just (x , _) = just x
-
-parse-Ping : List Char → Maybe ⟦ Ping ⟧
-parse-Ping xs with parse Ping xs
-... | nothing = nothing
-... | just (x , _) = just x
-
-parse-Privmsg : List Char → Maybe ⟦ Privmsg ⟧
-parse-Privmsg xs with parse Privmsg xs
-... | nothing = nothing
-... | just (x , _) = just x
-
 parse-Event : List Char → Maybe Event
-parse-Event xs with parse-Notice xs
-... | just x = just x
-... | nothing with parse-NumericReply xs
-... | just x = just x
-... | nothing with parse-Mode xs
-... | just x = just x
-... | nothing with parse-Ping xs
-... | just x = just x
-... | nothing with parse-Privmsg xs
-... | just x = just x
+parse-Event xs with parse Notice xs
+... | just (x , _) = just x
+... | nothing with parse NumericReply xs
+... | just (x , _) = just x
+... | nothing with parse Mode xs
+... | just (x , _) = just x
+... | nothing with parse Ping xs
+... | just (x , _) = just x
+... | nothing with parse Privmsg xs
+... | just (x , _) = just x
 ... | nothing = nothing
 
 private
