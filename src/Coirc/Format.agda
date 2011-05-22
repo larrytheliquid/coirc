@@ -33,12 +33,13 @@ data U : Set where
   CHAR : U
   DAR : ℕ → U
   DAR-RANGE : ℕ → ℕ → U
-  `*sp `*crlf : U
+  `*! `*sp `*crlf : U
 
 El : U → Set
 El CHAR = Char
 El (DAR n) = Dar n
 El (DAR-RANGE n m) = DarRange n m true
+El `*! = String
 El `*sp = String
 El `*crlf = String
 
@@ -83,13 +84,13 @@ str s = chars (toList s)
   chars (x ∷ xs) = char x >>- chars xs
 
 DIGIT = Base (DAR-RANGE (toNat '0') (toNat '9'))
-colon = char ':'
+cl    = char ':'
 sp    = char ' '
 cr    = char '\r'
 lf    = char '\n'
 crlf  = cr >>- lf
 
-prefix = colon >> Base `*sp
+prefix = cl >> Base `*sp
 
 Notice : Format
 Notice =
@@ -135,12 +136,15 @@ Ping =
 
 Privmsg : Format
 Privmsg =
-  prefix >>= λ source →
+  cl >>
+  Base `*! >>= λ source →
+  Base `*sp >>
   sp >>
   str "PRIVMSG" >>
   sp >>
   Base `*sp >> -- target
   sp >>
+  cl >>
   Base `*crlf >>= λ text →
   crlf >>
   As (privmsg source text)

@@ -13,6 +13,13 @@ open import Relation.Binary.PropositionalEquality
 open import Coirc
 open import Coirc.Format
 
+readTo-! : List Char → Maybe (String × List Char)
+readTo-! [] = nothing
+readTo-! ('!' ∷ xs) = just ("" , '!' ∷ xs)
+readTo-! (x ∷ xs) with readTo-! xs
+... | nothing = nothing
+... | just (a , ys) = just ( fromList [ x ] ++ a  , ys )
+
 readTo-sp : List Char → Maybe (String × List Char)
 readTo-sp [] = nothing
 readTo-sp (' ' ∷ xs) = just ("" , ' ' ∷ xs)
@@ -39,6 +46,7 @@ read (DAR-RANGE n m) (x ∷ xs) with Data.Bool._≟_ true (within? x n m)
 ... | no _ = nothing
 ... | yes p rewrite p = just (dar x , xs)
 
+read `*! xs = readTo-! xs
 read `*sp xs = readTo-sp xs
 read `*crlf xs = readTo-crlf xs
 
@@ -102,7 +110,7 @@ private
    "PING :verne.freenode.net"
   test-Ping = refl
 
-  -- test-Privmsg : test privmsg
-  --   ":amiller!debian-tor@gateway/tor-sasl/socrates1024 PRIVMSG coalgbot :PING 3073265598"
-  -- test-Privmsg = refl
+  test-Privmsg : test (privmsg "amiller" "PING 3073265598")
+    ":amiller!debian-tor@gateway/tor-sasl/socrates1024 PRIVMSG coalgbot :PING 3073265598"
+  test-Privmsg = refl
 
