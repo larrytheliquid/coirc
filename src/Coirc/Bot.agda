@@ -17,10 +17,11 @@ bot =
   loop = get f where
     f : Event → Bot
     f notice = put (print "<notice>") (♯ loop)
+    f (welcome text) = put (print ("<welcome>: " ++ text)) (♯ loop)
     f numeric = put (print "<numeric-reply>") (♯ loop)
     f mode = put (print "<mode>") (♯ loop)
     f ping = put (print "<ping/pong>") (♯ put (pong name) (♯ loop))
-    f (privmsg source "/quit") =
+    f (privmsg source "quit") =
       put (privmsg source "ciao")
       (♯ put (quit (source ++ " told me to leave"))
       (♯ loop))

@@ -102,6 +102,19 @@ Notice =
   crlf >>
   As notice
 
+Welcome : Format
+Welcome =
+  prefix >>
+  sp >>
+  str "001" >>
+  sp >>
+  Base `*sp >> -- target
+  sp >>
+  cl >>
+  Base `*crlf >>= λ text →
+  crlf >>
+  As (welcome text)
+
 NumericReply : Format
 NumericReply = 
   prefix >>
