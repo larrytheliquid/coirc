@@ -5,25 +5,36 @@ open import Data.String
 open import Data.Maybe
 
 data Connection : Set where
-  unregistered registration-requested registered disconnected : Connection
+  unregistered requested registered disconnected : Connection
 
-data Event : (pre post : Connection) → Set where
-  welcome : (text : String) → Event registration-requested registered
-  notice : ∀ {conn} → Event conn conn
-  mode numeric ping : Event registered registered
-  privmsg : (source text : String) → Event registered registered
-  error : ∀ {conn} (text : String) → Event conn disconnected
+data Channel : Set where
+  outside inside : Channel
 
-data Action : (pre post : Connection) → Set where
-  print : ∀ {conn} (text : String) → Action conn conn
-  nick : ∀ {conn} (name : String) → Action conn conn
-  user : (name real : String) → Action unregistered registration-requested
-  pong : (name : String) → Action registered registered
-  join part : (channel : String) → Action registered registered
-  privmsg : (target text : String) → Action registered registered
-  quit : ∀ {conn} (text : String) → Action conn disconnected
+infixr 4 _,_
+record State : Set where
+  constructor _,_
+  field
+    connection : Connection
+    channel : Channel
 
-data Bot : (pre post : Connection) → Set where
+data Event : (pre post : State) → Set where
+  welcome : ∀ {chan} (text : String) → Event (requested , chan) (registered , chan)
+  notice : ∀ {state} → Event state state
+  mode numeric ping : ∀ {chan} → Event (registered , chan) (registered , chan)
+  privmsg : ∀ {chan} (source text : String) → Event (registered , chan) (registered , chan)
+  error : ∀ {state} (text : String) → Event state (disconnected , outside)
+
+data Action : (pre post : State) → Set where
+  print : ∀ {state} (text : String) → Action state state
+  nick : ∀ {state} (name : String) → Action state state
+  user : ∀ {chan} (name real : String) → Action (unregistered , chan) (requested , chan)
+  pong : ∀ {chan} (name : String) → Action (registered , chan) (registered , chan)
+  join : (channel : String) → Action (registered , outside) (registered , inside)
+  part : (channel : String) → Action (registered , inside) (registered , outside)
+  privmsg : ∀ {chan} (target text : String) → Action (registered , chan) (registered , chan)
+  quit : ∀ {state} (text : String) → Action state (disconnected , outside)
+
+data Bot : (pre post : State) → Set where
   get : ∀ {pre mid post} → (Event pre mid → Bot mid post) → Bot pre post
   put : ∀ {pre mid post} → Action pre mid → ∞ (Bot mid post) → Bot pre post
 
