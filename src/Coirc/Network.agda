@@ -43,6 +43,10 @@ private
     hSend h ("USER " ++ name ++ " 0 * :" ++ real)
   runAction h (pong name) =
     hSend h ("PONG " ++ name)
+  runAction h (join channel) =
+    hSend h ("JOIN " ++ channel)
+  runAction h (part channel) =
+    hSend h ("PART " ++ channel)
   runAction h (privmsg target text) =
     hSend h ("PRIVMSG " ++ target ++ " :" ++ text)
   runAction h (quit text) =

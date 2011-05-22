@@ -17,6 +17,7 @@ data Action : Set where
   nick : (name : String) → Action
   user : (name real : String) → Action
   pong : (name : String) → Action
+  join part : (channel : String) → Action
   privmsg : (target text : String) → Action
   quit : (text : String) → Action
 
