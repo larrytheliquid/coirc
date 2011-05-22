@@ -20,6 +20,10 @@ bot =
     f numeric = put (print "<numeric-reply>") (♯ loop)
     f mode = put (print "<mode>") (♯ loop)
     f ping = put (print "<ping/pong>") (♯ put (pong name) (♯ loop))
+    f (privmsg source "quit") =
+      put (privmsg source "ciao")
+      (♯ put (quit (source ++ " told me to leave"))
+      (♯ loop))
     f (privmsg source text) =
       put (print ("<privmsg>: " ++ text))
       (♯ put (privmsg source "interesting, tell me more!")

@@ -46,7 +46,7 @@ private
   runAction h (privmsg target text) =
     hSend h ("PRIVMSG " ++ target ++ " :" ++ text)
   runAction h (quit text) =
-    hSend h ("QUIT " ++ text)
+    hSend h ("QUIT :" ++ text)
 
   runSP : Handle → Bot → IO ⊤
   runSP h (get f) =
