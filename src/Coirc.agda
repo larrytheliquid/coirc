@@ -31,31 +31,40 @@ record State : Set where
     connection : Connection
     channels : Channels
 
-data Event : (pre post : State) → Set where
-  welcome : ∀ {chans} (text : String) → Event (requested , chans) (registered , chans)
-  notice : ∀ {state} → Event state state
-  mode numeric ping : ∀ {chans} → Event (registered , chans) (registered , chans)
-  privmsg : ∀ {chans} (source text : String) → Event (registered , chans) (registered , chans)
-  error : ∀ {state} (text : String) → Event state (disconnected , [])
-  join : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
-    Event (registered , chans) (registered , grant-join p)
-  channel-full : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
-    Event (registered , chans) (registered , drop p)
+data Request : (pre post : State) → Set where
+  nick : ∀ {state} (name : String) → Request state state
+  user : ∀ {chans} (name real : String) → Request (unregistered , chans) (requested , chans)
 
-data Action : (pre post : State) → Set where
-  print : ∀ {state} (text : String) → Action state state
-  nick : ∀ {state} (name : String) → Action state state
-  user : ∀ {chans} (name real : String) → Action (unregistered , chans) (requested , chans)
-  pong : ∀ {chans} (name : String) → Action (registered , chans) (registered , chans)
+  pong : ∀ {chans} (name : String) → Request (registered , chans) (registered , chans)
+
   join : ∀ {chans} {chan-state : String → Channel} (chan : String) → chan-state chan ∉ chans →
-    Action (registered , chans) (registered , requested chan ∷ chans)
-  part : ∀ {chans} (chan : String) (p : joined chan ∈ chans) → Action (registered , chans) (registered , drop p)
-  privmsg : ∀ {chans} (target text : String) → Action (registered , chans) (registered , chans)
-  quit : ∀ {state} (text : String) → Action state (disconnected , [])
+    Request (registered , chans) (registered , requested chan ∷ chans)
+  part : ∀ {chans} (chan : String) (p : joined chan ∈ chans) → Request (registered , chans) (registered , drop p)
 
-data Bot : (pre post : State) → Set where
-  get : ∀ {pre mid post} → (Event pre mid → Bot mid post) → Bot pre post
-  put : ∀ {pre mid post} → Action pre mid → ∞ (Bot mid post) → Bot pre post
+  privmsg : ∀ {chans} (target text : String) → Request (registered , chans) (registered , chans)
+
+  quit : ∀ {state} (text : String) → Request state (disconnected , [])
+
+data Response : (pre post : State) → Set where
+  notice : ∀ {state} → Response state state
+
+  welcome : ∀ {chans} (text : String) → Response (requested , chans) (registered , chans)
+
+  mode numeric ping : ∀ {chans} → Response (registered , chans) (registered , chans)
+
+  privmsg : ∀ {chans} (source text : String) → Response (registered , chans) (registered , chans)
+
+  error : ∀ {state} (text : String) → Response state (disconnected , [])
+
+  join : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
+    Response (registered , chans) (registered , grant-join p)
+
+  channel-full : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
+    Response (registered , chans) (registered , drop p)
+
+data Session : (pre post : State) → Set where
+  get : ∀ {pre mid post} → (Request pre mid → Session mid post) → Session pre post
+  put : ∀ {pre mid post} → Response pre mid → ∞ (Session mid post) → Session pre post
 
 
 
