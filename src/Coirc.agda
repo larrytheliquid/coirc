@@ -9,58 +9,28 @@ open Membership-≡
 
 data Connection : Set where
   unregistered requested registered disconnected : Connection
-
-data Channel : Set where
-  requested joined : String → Channel
-
-Channels = List Channel
-
-drop : {x : Channel}{xs : Channels} → x ∈ xs → Channels
-drop (here {xs = xs} px) = xs
-drop (there {x = x} pxs) = x ∷ drop pxs
-
-grant-join : ∀ {x} {xs : Channels} → requested x ∈ xs → Channels
-grant-join (here {requested x} {xs = xs} px) = joined x ∷ xs
-grant-join (here {joined y} ())
-grant-join (there {x = x} pxs) = x ∷ grant-join pxs
-
-infixr 4 _,_
-record State : Set where
-  constructor _,_
-  field
-    connection : Connection
-    channels : Channels
+State = Connection
 
 data Request : (pre post : State) → Set where
   nick : ∀ {state} (name : String) → Request state state
-  user : ∀ {chans} (name real : String) → Request (unregistered , chans) (requested , chans)
+  user : (name real : String) → Request unregistered requested
 
-  pong : ∀ {chans} (name : String) → Request (registered , chans) (registered , chans)
+  pong : (name : String) → Request registered registered
 
-  join : ∀ {chans} {chan-state : String → Channel} (chan : String) → chan-state chan ∉ chans →
-    Request (registered , chans) (registered , requested chan ∷ chans)
-  part : ∀ {chans} (chan : String) (p : joined chan ∈ chans) → Request (registered , chans) (registered , drop p)
+  privmsg : (target text : String) → Request registered registered
 
-  privmsg : ∀ {chans} (target text : String) → Request (registered , chans) (registered , chans)
-
-  quit : ∀ {state} (text : String) → Request state (disconnected , [])
+  quit : ∀ {state} (text : String) → Request state disconnected
 
 data Response : (pre post : State) → Set where
   notice : ∀ {state} → Response state state
 
-  welcome : ∀ {chans} (text : String) → Response (requested , chans) (registered , chans)
+  welcome : (text : String) → Response requested registered
 
-  mode numeric ping : ∀ {chans} → Response (registered , chans) (registered , chans)
+  mode numeric ping : Response registered registered
 
-  privmsg : ∀ {chans} (source text : String) → Response (registered , chans) (registered , chans)
+  privmsg : (source text : String) → Response registered registered
 
-  error : ∀ {state} (text : String) → Response state (disconnected , [])
-
-  join : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
-    Response (registered , chans) (registered , grant-join p)
-
-  channel-full : ∀ {chans} (chan : String) (p : requested chan ∈ chans) →
-    Response (registered , chans) (registered , drop p)
+  error : ∀ {state} (text : String) → Response state disconnected
 
 data Session : (pre post : State) → Set where
   get : ∀ {pre mid post} → (Request pre mid → Session mid post) → Session pre post
