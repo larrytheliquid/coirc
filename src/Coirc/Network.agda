@@ -41,7 +41,7 @@ private
 
   runAction : ∀ {n} {pre post : Connections n} → Handles n → Action pre post → IO ⊤
   runAction hs (notice text p) =
-    hSend h ("NOTICE * :" ++ text) where
+    hSend h ("NOTICE * :*** " ++ text) where
     h = lookup (∈-to-Fin p) hs
   runAction hs (welcome {nickname = nickname} i text p) =
     hSend h ("001 " ++ nickname ++ " :" ++ text) where
@@ -55,7 +55,9 @@ private
   runAction hs (myinfo {nickname = nickname} i text p) =
     hSend h ("004 " ++ nickname ++ " " ++ text) where
     h = lookup (∈-to-Fin p) hs
-  runAction h _ = {!!}
+  runAction hs (luser {nickname = nickname} i text p) =
+    hSend h ("251 " ++ nickname ++ " :" ++ text) where
+    h = lookup (∈-to-Fin p) hs
 
 --   runSP : Handle → Bot → IO ⊤
 --   runSP h (get f) =
