@@ -43,18 +43,18 @@ private
   runAction hs (notice text p) =
     hSend h ("NOTICE * :" ++ text) where
     h = lookup (∈-to-Fin p) hs
-  -- runAction h (user name real) =
-  --   hSend h ("USER " ++ name ++ " 0 * :" ++ real)
-  -- runAction h (pong name) =
-  --   hSend h ("PONG " ++ name)
-  -- runAction h (join channel) =
-  --   hSend h ("JOIN " ++ channel)
-  -- runAction h (part channel) =
-  --   hSend h ("PART " ++ channel)
-  -- runAction h (privmsg target text) =
-  --   hSend h ("PRIVMSG " ++ target ++ " :" ++ text)
-  -- runAction h (quit text) =
-  --   hSend h ("QUIT :" ++ text)
+  runAction hs (welcome {nickname = nickname} i text p) =
+    hSend h ("001 " ++ nickname ++ " :" ++ text) where
+    h = lookup (∈-to-Fin p) hs
+  runAction hs (yourhost {nickname = nickname} i text p) =
+    hSend h ("002 " ++ nickname ++ " :" ++ text) where
+    h = lookup (∈-to-Fin p) hs
+  runAction hs (created {nickname = nickname} i text p) =
+    hSend h ("003 " ++ nickname ++ " :" ++ text) where
+    h = lookup (∈-to-Fin p) hs
+  runAction hs (myinfo {nickname = nickname} i text p) =
+    hSend h ("004 " ++ nickname ++ " " ++ text) where
+    h = lookup (∈-to-Fin p) hs
   runAction h _ = {!!}
 
 --   runSP : Handle → Bot → IO ⊤
