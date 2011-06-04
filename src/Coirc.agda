@@ -1,70 +1,64 @@
 module Coirc where
 open import Coinduction
 open import IO
+open import Data.Nat
+open import Data.Fin
 open import Data.String
 open import Data.Maybe
-open import Data.List hiding (drop)
-open import Data.List.Any
-open Membership-≡
+open import Data.Vec
+open import Data.Sum
 
 data Connection : Set where
-  unregistered requested registered disconnected : Connection
+  unregistered disconnected : Connection
+  requested-nick : (nickname : String) → Connection
+  requested-user : (user realname : String) → Connection
+  requested registered : (nickname user realname : String) → Connection
 
-data User : Set where
-  requested joined : String → User
+Connections : ℕ → Set
+Connections n = Vec Connection n
 
-Users = List User
+data Request {n : ℕ} : (pre post : Connections n) → Set where
+  nick : ∀ {conns} (i : Fin n) (nickname : String) →
+    -- TODO: nick not taken, before or after user?
+    conns [ i ]= unregistered →
+    Request conns (conns [ i ]≔ requested-nick nickname)
 
-drop : {x : User}{xs : Users} → x ∈ xs → Users
-drop (here {xs = xs} px) = xs
-drop (there {x = x} pxs) = x ∷ drop pxs
+  user : ∀ {conns} (i : Fin n) (user realname : String) →
+    conns [ i ]= unregistered →
+    Request conns (conns [ i ]≔ requested-user user realname)
 
-grant-join : ∀ {x} {xs : Users} → requested x ∈ xs → Users
-grant-join (here {requested x} {xs = xs} px) = joined x ∷ xs
-grant-join (here {joined y} ())
-grant-join (there {x = x} pxs) = x ∷ grant-join pxs
+  -- pong : ∀ {users} (name : String) → Request (registered , users) (registered , users)
 
-infixr 4 _,_
-record State : Set where
-  constructor _,_
-  field
-    connection : Connection
-    users : Users
+  connect : ∀ {conns} (i : Fin n) →
+    conns [ i ]= disconnected →
+    Request conns (conns [ i ]≔ unregistered)
 
-data Request : (pre post : State) → Set where
-  nick : ∀ {state} (name : String) → Request state state
-  user : ∀ {users} (name real : String) → Request (unregistered , users) (requested , users)
+  privmsg : ∀ {conns user realname} (nickname text : String) →
+    registered nickname user realname ∈ conns →
+    Request conns conns
 
-  pong : ∀ {users} (name : String) → Request (registered , users) (registered , users)
+  quit : ∀ {conns} (i : Fin n) (text : String) → Request conns (conns [ i ]≔ disconnected)
 
-  join : ∀ {users} {chan-state : String → User} (chan : String) → chan-state chan ∉ users →
-    Request (registered , users) (registered , requested chan ∷ users)
-  part : ∀ {users} (chan : String) (p : joined chan ∈ users) → Request (registered , users) (registered , drop p)
+-- data Response : (pre post : State) → Set where
+--   notice : ∀ {state} → Response state state
 
-  privmsg : ∀ {users} (target text : String) → Request (registered , users) (registered , users)
+--   welcome : ∀ {users} (text : String) → Response (requested , users) (registered , users)
 
-  quit : ∀ {state} (text : String) → Request state (disconnected , [])
+--   mode numeric ping : ∀ {users} → Response (registered , users) (registered , users)
 
-data Response : (pre post : State) → Set where
-  notice : ∀ {state} → Response state state
+--   privmsg : ∀ {users} (source text : String) → Response (registered , users) (registered , users)
 
-  welcome : ∀ {users} (text : String) → Response (requested , users) (registered , users)
+--   error : ∀ {state} (text : String) → Response state (disconnected , [])
 
-  mode numeric ping : ∀ {users} → Response (registered , users) (registered , users)
+--   join : ∀ {users} (chan : String) (p : requested chan ∈ users) →
+--     Response (registered , users) (registered , grant-join p)
 
-  privmsg : ∀ {users} (source text : String) → Response (registered , users) (registered , users)
+--   channel-full : ∀ {users} (chan : String) (p : requested chan ∈ users) →
+--     Response (registered , users) (registered , drop p)
 
-  error : ∀ {state} (text : String) → Response state (disconnected , [])
-
-  join : ∀ {users} (chan : String) (p : requested chan ∈ users) →
-    Response (registered , users) (registered , grant-join p)
-
-  channel-full : ∀ {users} (chan : String) (p : requested chan ∈ users) →
-    Response (registered , users) (registered , drop p)
-
-data Session : (pre post : State) → Set where
-  get : ∀ {pre mid post} → (Request pre mid → Session mid post) → Session pre post
-  put : ∀ {pre mid post} → Response pre mid → ∞ (Session mid post) → Session pre post
+-- data Session : (pre post : State) → Set where
+--   get : ∀ {pre mid post} → (Request pre mid → Session mid post) → Session pre post
+--   put : ∀ {pre mid post} → Response pre mid → ∞ (Session mid post) → Session pre post
 
 
 
