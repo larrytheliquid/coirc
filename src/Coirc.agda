@@ -8,6 +8,10 @@ open import Data.Maybe
 open import Data.Vec
 open import Data.Sum
 
+∈-to-Fin : ∀ {A : Set} {x n} {xs : Vec A n} → x ∈ xs → Fin n
+∈-to-Fin here = zero
+∈-to-Fin (there p) = suc (∈-to-Fin p)
+
 data Connection : Set where
   unregistered closed : Connection
   requested-nick : (nickname : String) → Connection
@@ -38,7 +42,7 @@ data Event {n : ℕ} : (pre post : Connections n) → Set where
   quit : ∀ {conns} (i : Fin n) (text : String) → Event conns (conns [ i ]≔ closed)
 
 data Action {n : ℕ} : (pre post : Connections n) → Set where
-  notice : ∀ {conns} →
+  notice : ∀ {conns} (text : String) →
     unregistered ∈ conns →
     Action conns conns
 
