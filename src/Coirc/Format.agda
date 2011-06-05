@@ -46,7 +46,7 @@ El `*crlf = String
 mutual
   data Format : Set where
     Fail End : Format
-    As : Event → Format
+    As : RawEvent → Format
     Base : U → Format
     Skip Or And : Format → Format → Format
     Use : (f : Format) → (⟦ f ⟧ → Format) → Format
@@ -54,7 +54,7 @@ mutual
   ⟦_⟧ : Format → Set
   ⟦ Fail ⟧ = ⊥
   ⟦ End ⟧ = ⊤
-  ⟦ As _ ⟧ = Event
+  ⟦ As _ ⟧ = RawEvent
   ⟦ Base u ⟧ = El u
   ⟦ Skip _ f ⟧ = ⟦ f ⟧
   ⟦ Or f₁ f₂ ⟧ = ⟦ f₁ ⟧ ⊎ ⟦ f₂ ⟧
@@ -83,81 +83,45 @@ str s = chars (toList s)
   chars [] = End
   chars (x ∷ xs) = char x >>- chars xs
 
-DIGIT = Base (DAR-RANGE (toNat '0') (toNat '9'))
+digit = Base (DAR-RANGE (toNat '0') (toNat '9'))
 cl    = char ':'
 sp    = char ' '
 cr    = char '\r'
 lf    = char '\n'
 crlf  = cr >>- lf
 
-prefix = cl >> Base `*sp
-
-Notice : Format
-Notice =
-  prefix >>
+Nickname : Format
+Nickname =
+  str "NICK" >>
   sp >>
-  str "NOTICE" >>
-  sp >> char '*' >> sp >>
-  Base `*crlf >> -- text
+  Base `*crlf >>= λ nickname →
   crlf >>
-  As notice
+  As (nick nickname)
 
-Welcome : Format
-Welcome =
-  prefix >>
+User : Format
+User =
+  str "USER" >>
   sp >>
-  str "001" >>
+  Base `*sp >>= λ username →
   sp >>
-  Base `*sp >> -- target
-  sp >>
-  cl >>
-  Base `*crlf >>= λ text →
+  digit >> -- mode
+  char '*' >> sp >> cl >>
+  Base `*crlf >>= λ realname →
   crlf >>
-  As (welcome text)
+  As (user username realname)
 
-NumericReply : Format
-NumericReply = 
-  prefix >>
-  sp >>
-  (DIGIT >>- DIGIT >>- DIGIT) >>
-  sp >>
-  Base `*sp >> -- target
-  sp >>
-  Base `*crlf >> -- text
-  crlf >>
-  As numeric
-
-Mode : Format
-Mode =
-  prefix >>
-  sp >>
-  str "MODE" >>
-  sp >>
-  Base `*sp >> -- nickname
-  sp >>
-  Base `*crlf >> -- modes
-  crlf >>
-  As mode
-
-Ping : Format
-Ping =
-  str "PING" >>
-  sp >>
-  Base `*crlf >> -- server
-  crlf >>
-  As ping
-
-Privmsg : Format
 Privmsg =
-  cl >>
-  Base `*! >>= λ source →
-  Base `*sp >>
-  sp >>
   str "PRIVMSG" >>
   sp >>
-  Base `*sp >> -- target
-  sp >>
-  cl >>
+  Base `*sp >>= λ nickname →
+  sp >> cl >>
   Base `*crlf >>= λ text →
   crlf >>
-  As (privmsg source text)
+  As (privmsg nickname text)
+
+Quit =
+  str "QUIT" >>
+  sp >> cl >>
+  Base `*crlf >>= λ text →
+  crlf >>
+  As (quit text)
