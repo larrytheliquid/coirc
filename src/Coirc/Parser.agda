@@ -77,45 +77,14 @@ parse (Use f₁ f₂) xs with parse f₁ xs
 ... | nothing = nothing
 ... | just (b , zs) = just ((a , b) , zs)
 
-parse-Event : List Char → Maybe Event
-parse-Event xs with parse Notice xs
-... | just (x , _) = just x
-... | nothing with parse Welcome xs
+parse-RawEvent : List Char → Maybe RawEvent
+parse-RawEvent xs with parse Nickname xs
 ... | just ((_ , x) , _) = just x
-... | nothing with parse NumericReply xs
-... | just (x , _) = just x
-... | nothing with parse Mode xs
-... | just (x , _) = just x
-... | nothing with parse Ping xs
-... | just (x , _) = just x
+... | nothing with parse User xs
+... | just ((_ , _ , x) , _) = just x
 ... | nothing with parse Privmsg xs
 ... | just ((_ , _ , x) , _) = just x
+... | nothing with parse Quit xs
+... | just ((_ , x) , _) = just x
 ... | nothing = nothing
 
--- private
---   test : Event → String → Set
---   test e s = just e ≡ parse-Event (toList (s ++ "\r\n"))
-
---   test-Notice : test notice
---     ":verne.freenode.net NOTICE * :*** Looking up your hostname..."
---   test-Notice = refl
-
---   test-Welcome : test (welcome "Welcome to the freenode Internet Relay Chat Network coalgbot")
---     ":verne.freenode.net 001 foobot-name :Welcome to the freenode Internet Relay Chat Network coalgbot"
---   test-NumericReply = refl
-
---   test-NumericReply : test numeric
---     "hubbard.freenode.net 003 coalgbot :This server was created Tue Feb 23 2010 at 18:01:37 EST"
---   test-NumericReply = refl
-
---   test-Mode : test mode
---     ":coalgbot MODE coalgbot :+i"
---   test-Mode = refl
-
---   test-Ping : test ping
---    "PING :verne.freenode.net"
---   test-Ping = refl
-
---   test-Privmsg : test (privmsg "amiller" "PING 3073265598")
---     ":amiller!debian-tor@gateway/tor-sasl/socrates1024 PRIVMSG coalgbot :PING 3073265598"
---   test-Privmsg = refl
