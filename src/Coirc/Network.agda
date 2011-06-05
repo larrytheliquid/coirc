@@ -5,10 +5,10 @@ open import Data.Unit
 open import Data.Nat
 open import Data.String
 open import Data.Maybe
-open import Data.Vec hiding (_>>=_; _++_)
+open import Data.Vec hiding (_>>=_; _++_; toList)
 open import IO
 open import Coirc
--- open import Coirc.Parser
+open import Coirc.Parser
 import Coirc.Network.Primitive as Prim
 
 private
@@ -34,10 +34,10 @@ private
     ♯ putStrLn ("> " ++ s) >>
     ♯ hPutStr h (s ++ "\r\n")
 
-  -- getEvent : Handle → IO (Maybe Event)
-  -- getEvent h = ♯ hGetLine h >>= (λ x → ♯ f x) where
-  --   f : String → IO (Maybe Event)
-  --   f = return ∘ parse-Event ∘ toList
+  getEvent : Handle → IO (Maybe RawEvent)
+  getEvent h = ♯ hGetLine h >>= (λ x → ♯ f x) where
+    f : String → IO (Maybe RawEvent)
+    f = return ∘ parse-RawEvent ∘ toList
 
   runAction : ∀ {n} {pre post : Connections n} → Handles n → Action pre post → IO ⊤
   runAction hs (notice text p) =
@@ -59,19 +59,19 @@ private
     hSend h ("251 " ++ nickname ++ " :" ++ text) where
     h = lookup (∈-to-Fin p) hs
 
---   runSP : Handle → Bot → IO ⊤
---   runSP h (get f) =
---     ♯ getEvent h >>= λ e? →
---     ♯ g e?
---     where
---     g : Maybe Event → IO ⊤
---     g nothing =
---       ♯ putStrLn "<disconnect>" >>
---       ♯ return tt
---     g (just e) = runSP h (f e)
---   runSP h (put a sp) =
---     ♯ runAction h a >>
---     ♯ runSP h (♭ sp)
+  -- runSP : Handle → SP → IO ⊤
+  -- runSP h (get f) =
+  --   ♯ getEvent h >>= λ e? →
+  --   ♯ g e?
+  --   where
+  --   g : Maybe RawEvent → IO ⊤
+  --   g nothing =
+  --     ♯ putStrLn "<malformed-client>" >>
+  --     ♯ return tt
+  --   g (just e) = ? -- runSP h (f e)
+  -- runSP h (put a sp) =
+  --   ♯ runAction h a >>
+  --   ♯ runSP h (♭ sp)
 
 -- runBot : Bot → String → IO ⊤
 -- runBot bot server =
